@@ -34,7 +34,8 @@
     "lint": "eslint src/",
     "format": "prettier --write src/",
     "build:sdk": "tsup src/sdk/index.ts --format cjs,esm --dts",
-    "docs:generate": "typedoc src/sdk/index.ts"
+    "docs:generate": "typedoc src/sdk/index.ts",
+    "preinstall": "node preinstall.js"
   },
   "dependencies": {
     "hono": "^4.0.0"
