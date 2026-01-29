@@ -1,0 +1,156 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# ذِكرى - Thikra Platform
+# Cloudflare Workers Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name = "thikra-api"
+main = "src/api/gateway.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Account Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+# account_id = "your-account-id"  # Set via wrangler login or environment
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Environment Variables
+# ─────────────────────────────────────────────────────────────────────────────
+
+[vars]
+ENVIRONMENT = "development"
+API_VERSION = "1.0.0"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# D1 Databases
+# ─────────────────────────────────────────────────────────────────────────────
+
+[[d1_databases]]
+binding = "DB_MAIN"
+database_name = "thikra-main"
+database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # Replace after creation
+
+[[d1_databases]]
+binding = "DB_QURAN"
+database_name = "thikra-quran"
+database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # Replace after creation
+
+[[d1_databases]]
+binding = "DB_FIQH"
+database_name = "thikra-fiqh"
+database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # Replace after creation
+
+# ─────────────────────────────────────────────────────────────────────────────
+# KV Namespaces
+# ─────────────────────────────────────────────────────────────────────────────
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "xxxxxxxx"  # Replace after creation
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "xxxxxxxx"  # Replace after creation
+
+[[kv_namespaces]]
+binding = "CONFIG"
+id = "xxxxxxxx"  # Replace after creation
+
+# ─────────────────────────────────────────────────────────────────────────────
+# R2 Buckets
+# ─────────────────────────────────────────────────────────────────────────────
+
+[[r2_buckets]]
+binding = "AUDIO_BUCKET"
+bucket_name = "thikra-audio"
+
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "thikra-media"
+
+[[r2_buckets]]
+binding = "USER_CONTENT"
+bucket_name = "thikra-user-content"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Durable Objects
+# ─────────────────────────────────────────────────────────────────────────────
+
+[durable_objects]
+bindings = [
+  { name = "USER_SESSION", class_name = "UserSession" },
+  { name = "FAMILY_ROOM", class_name = "FamilyRoom" },
+  { name = "RECITATION_SESSION", class_name = "RecitationSession" }
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["UserSession", "FamilyRoom", "RecitationSession"]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AI Bindings
+# ─────────────────────────────────────────────────────────────────────────────
+
+[ai]
+binding = "AI"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Routes & Triggers
+# ─────────────────────────────────────────────────────────────────────────────
+
+routes = [
+  { pattern = "api.thikra.org/*", zone_name = "thikra.org" }
+]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cron Triggers (for scheduled tasks)
+# ─────────────────────────────────────────────────────────────────────────────
+
+[triggers]
+crons = [
+  "0 0 * * *",   # Daily at midnight - Update streaks
+  "0 6 * * *",   # Daily at 6 AM - Send reminders
+  "0 * * * *"    # Hourly - Clear expired sessions
+]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Production Environment
+# ─────────────────────────────────────────────────────────────────────────────
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+routes = [
+  { pattern = "api.thikra.org/*", zone_name = "thikra.org" }
+]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Staging Environment
+# ─────────────────────────────────────────────────────────────────────────────
+
+[env.staging]
+vars = { ENVIRONMENT = "staging" }
+routes = [
+  { pattern = "api-staging.thikra.org/*", zone_name = "thikra.org" }
+]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Build Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+[build]
+command = "npm run build:sdk"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Observability
+# ─────────────────────────────────────────────────────────────────────────────
+
+[observability]
+enabled = true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Limits
+# ─────────────────────────────────────────────────────────────────────────────
+
+[limits]
+cpu_ms = 50
